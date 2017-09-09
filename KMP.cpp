@@ -4,12 +4,12 @@ Searches for the string w in the string s (of length k). Returns the
 runs in O(k) time.
 */
 
-typedef vector<int> VI;
-
-void buildTable(string& w, VI& t)
+typedef std::vector<uin32_t> VI;
+namespace {
+void buildTable(std::string& w, VI& t)
 {
   t = VI(w.length());  
-  int i = 2, j = 0;
+  uint32_t i = 2, j = 0;
   t[0] = -1; t[1] = 0;
   
   while(i < w.length())
@@ -19,10 +19,10 @@ void buildTable(string& w, VI& t)
     else { t[i] = 0; i++; }
   }
 }
-
-int KMP(string& s, string& w)
+}
+uint32_t KMP(const std::string& s, const std::string& w)
 {
-  int m = 0, i = 0;
+  uint32_t m = 0, i = 0;
   VI t;
   
   buildTable(w, t);  
