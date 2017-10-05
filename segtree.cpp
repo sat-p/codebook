@@ -1,101 +1,121 @@
-#include <vector>
-#include <limits>
+#include <bits/stdc++.h>
 
-// This is set up for range minimum queries, but can be easily adapted for computing other quantities.
-// To enable lazy propagation and range updates, uncomment the following line.
+/*
+ * Currently written for range minimum query.
+ */
+
+#define BASIC \
+    int l = 2 * node + 1; \
+    int r = l + 1; \
+    auto mid = begin + (end - begin + 1) / 2;
+    
 #define LAZY
 struct Segtree {
-	int n;
-	std::vector<int> data;
+    
+    typedef int dt;
+    std::vector<dt> data;
+    int n;
+    
 #ifdef LAZY
 #define NOLAZY 2e9
-#define GET(node) (lazy[node] == NOLAZY ? data[node] : lazy[node])
-	std::vector<int> lazy;
-#else
-#define GET(node) data[node]
+#define GET(node) (lazy[node] == NOLAZY) ? data[node] : lazy[node]
+    std::vector<dt> lazy;
 #endif
-	void build_rec(int node, int* begin, int* end) {
-		if (end == begin+1) {
-			if (data.size() <= node) data.resize(node+1);
-			data[node] = *begin;
-		} else {
-			int* mid = begin + (end-begin+1)/2;
-			build_rec(2*node+1, begin, mid);
-			build_rec(2*node+2, mid, end);
-			data[node] = std::min(data[2*node+1], data[2*node+2]);
-		}
-	}
-#ifndef LAZY
-	void update_rec(int node, int begin, int end, int pos, int val) {
-		if (end == begin+1) {
-			data[node] = val;
-		} else {
-			int mid = begin + (end-begin+1)/2;
-			if (pos < mid) {
-				update_rec(2*node+1, begin, mid, pos, val);
-			} else {
-				update_rec(2*node+2, mid, end, pos, val);
-			}
-			data[node] = std::min(data[2*node+1], data[2*node+2]);
-		}
-	}
-#else
-	void update_range_rec(int node, int tbegin, int tend, int abegin, int aend, int val) {
-		if (tbegin >= abegin && tend <= aend) {
-			lazy[node] = val;
-		} else {
-			int mid = tbegin + (tend - tbegin + 1)/2;
-			if (lazy[node] != NOLAZY) {
-				lazy[2*node+1] = lazy[2*node+2] = lazy[node]; lazy[node] = NOLAZY;
-			}
-			if (mid > abegin && tbegin < aend)
-				update_range_rec(2*node+1, tbegin, mid, abegin, aend, val);
-			if (tend > abegin && mid < aend)
-				update_range_rec(2*node+2, mid, tend, abegin, aend, val);
-			data[node] = std::min(GET(2*node+1), GET(2*node+2));
-		}
-	}
-#endif
-	int query_rec(int node, int tbegin, int tend, int abegin, int aend) {
-		if (tbegin >= abegin && tend <= aend) {
-			return GET(node);
-		} else {
-#ifdef LAZY
-			if (lazy[node] != NOLAZY) {
-				data[node] = lazy[2*node+1] = lazy[2*node+2] = lazy[node]; lazy[node] = NOLAZY;
-			}
-#endif
-			int mid = tbegin + (tend - tbegin + 1)/2;
-			int res = std::numeric_limits<int>::max();
-			if (mid > abegin && tbegin < aend) 
-				res = std::min(res, query_rec(2*node+1, tbegin, mid, abegin, aend));
-			if (tend > abegin && mid < aend)
-				res = std::min(res, query_rec(2*node+2, mid, tend, abegin, aend));
-			return res;
-		}
-	}
+    
+    void build_rec (int node, dt* begin, dt* end)
+    {
+        if (end == begin + 1) {
+            if (data.size() <= node) data.resize (node + 1);
+            data[node] = *begin;
+        }
+        else {
+            
+            BASIC
+            
+            build_rec (l, begin, mid);
+            build_rec (r, mid, end);
+            data[node] = std::min (data[l], data[r]);
+        }
+    }
 
-	// Create a segtree which stores the range [begin, end) in its bottommost level.
-	Segtree(int* begin, int* end): n(end - begin) {
-		build_rec(0, begin, end);
 #ifdef LAZY
-		lazy.assign(data.size(), NOLAZY);
+    void update_range_rec (int node, int begin, int end, int rbegin, int rend, dt val)
+    {
+        if (begin >= rbegin && end <= rend)
+            lazy[node] = val;
+        else {
+        
+            BASIC
+            
+            if (lazy[node] != NOLAZY) {
+                lazy[l] = lazy[r] = lazy[node];
+                lazy[node] = NOLAZY;
+            }
+            
+            if (mid > rbegin && begin < rend)
+                update_range_rec (l, begin, mid, rbegin, rend, val);
+            if (end > rbegin && mid < rend)
+                update_range_rec (r, mid, end, rbegin, rend, val);
+            data[node] = std::min (GET (l), GET (r));
+        }
+    }
+#else
+    void update_rec (int node, int begin, int end, int pos, dt val)
+    {
+        if (end == begin + 1)
+            data[node] = val;
+        else {
+        
+            BASIC
+            
+            if (pos < mid)
+                update_rec (l, begin, mid, pos, val);
+            else
+                update_rec (r, mid, end, pos, val);
+            data[node] = std::min (data[l], data[r]);
+        }
+    }
 #endif
-	}
+    dt query_rec (int node, int begin, int end, int rbegin, int rend)
+    {
+    
+        if (begin >= rbegin && end <= rend)
+            return data[node];
+        else {
+            
+            BASIC
+#ifdef LAZY   
+            if (lazy[node] != NOLAZY) {
+                data[node] = lazy[l] = lazy[r] = lazy[node];
+                lazy[node] = NOLAZY;
+            }
+#endif
 
-#ifndef LAZY
-	// Call this to update a value (indices are 0-based). If lazy propagation is enabled, use update_range(pos, pos+1, val) instaed.
-	void update(int pos, int val) {
-		update_rec(0, 0, n, pos, val);
-	}
-#else 
-	// Call this to update range [begin, end), if lazy propagation is enabled. Indices are 0-based.
-	void update_range(int begin, int end, int val) {
-		update_range_rec(0, 0, n, begin, end, val);
-	}
+            dt res = std::numeric_limits<dt>::max();
+            if (mid > rbegin && begin < rend)
+                res = std::min (res, query_rec (l, begin, mid, rbegin, rend));
+            if (end > rbegin && mid < rend)
+                res = std::min (res, query_rec (r, mid, end, rbegin, rend));
+            return res;
+        }
+    }
+    
+    Segtree (dt* begin, dt* end) : n (end - begin)
+    {
+        build_rec (0, begin, end);
+#ifdef LAZY        
+        lazy.assign (data.size(), NOLAZY);
 #endif
-	// Returns minimum in range [begin, end). Indices are 0-based.
-	int query(int begin, int end) {
-		return query_rec(0, 0, n, begin, end);
-	}
+    }
+
+#ifdef LAZY
+    void update_range (int begin, int end, dt val)
+    { update_range_rec (0, 0, n, begin, end, val); }
+#else
+    void update (int pos, dt val)
+    { update_rec (0, 0, n, pos, val); }
+#endif
+
+    dt query (int begin, int end)
+    { return query_rec (0, 0, n, begin, end); }
 };
