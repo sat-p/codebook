@@ -10,7 +10,7 @@ struct Segtree {
 #ifdef LAZY
 #define NOLAZY 2e9
 #define GET(node) (lazy[node] == NOLAZY ? data[node] : lazy[node])
-	vector<int> lazy;
+	std::vector<int> lazy;
 #else
 #define GET(node) data[node]
 #endif
