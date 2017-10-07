@@ -1,7 +1,13 @@
-int mod_exp (const int x, int y, const int MOD)
+#include<bits/stdc++.h>
+
+#define rep(i, a, b)    for (int i = a; i <= b; ++i)
+
+typedef long long ll;
+
+int mod_exp (int x, int y, int MOD)
 {
-    long long ans = 1;
-    long long m = x;
+    ll ans = 1;
+    ll m = x;
     
     while (y)
     {
@@ -17,12 +23,12 @@ int mod_exp (const int x, int y, const int MOD)
 }
 
 /*
-/* Checking using double hashing
-/*/
+ * Checking for matches using double hashing
+ */
 
-int rabin_karp (const std::string& text, const std::string& search)
+int rabin_karp (std::string& text, std::string& search)
 {
-    constexpr int B = 2;
+    constexpr int B = 2; // size of alphabet ??
     
     constexpr int MOD1 = 1e9 + 7;
     constexpr int MOD2 = 1e9 + 9;
@@ -32,18 +38,18 @@ int rabin_karp (const std::string& text, const std::string& search)
     
     int ans = 0;
     
-    long long hs1 = 0, hs2 = 0;
+    ll hs1 = 0, hs2 = 0;
     
-    for (const auto& c : search) {
+    for (auto& c : search) {
     
         hs1 = (hs1 * B + c) % MOD1;
         hs2 = (hs2 * B + c) % MOD2;
     }
     
-    long long ht1 = 0, ht2 = 0;
+    ll ht1 = 0, ht2 = 0;
     
-    const int M_ = search.size() - 1;
-    const int N_ = text.size() - 1;
+    int M_ = search.size() - 1;
+    int N_ = text.size() - 1;
     
     rep (i, 0, M_) {
     
@@ -54,12 +60,12 @@ int rabin_karp (const std::string& text, const std::string& search)
     if (ht1 == hs1 && ht2 == hs2)
         ans = 1;
     
-    const long long inv1 = mod_exp (B, M_, MOD1);
-    const long long inv2 = mod_exp (B, M_, MOD2);
+    ll inv1 = mod_exp (B, M_, MOD1);
+    ll inv2 = mod_exp (B, M_, MOD2);
     
     rep (i, search.size(), N_) {
         
-        const int prev = i - search.size();
+        int prev = i - search.size();
         
         ht1 -= (text[prev] * inv1) % MOD1;
         ht2 -= (text[prev] * inv2) % MOD2;
