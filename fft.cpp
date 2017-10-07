@@ -1,3 +1,17 @@
+// Usage:
+// f[0...N-1] and g[0..N-1] are numbers
+// Want to compute the convolution h, defined by
+// h[n] = sum of f[k]g[n-k] (k = 0, ..., N-1).
+// Here, the index is cyclic; f[-1] = f[N-1], f[-2] = f[N-2], etc.
+// Let F[0...N-1] be FFT(f), and similarly, define G and H.
+// The convolution theorem says H[n] = F[n]G[n] (element-wise product).
+// To compute h[] in O(N log N) time, do the following:
+//   1. Compute F and G (pass dir = 1 as the argument).
+//   2. Get H by element-wise multiplying F and G.
+//   3. Get h by taking the inverse FFT (use dir = -1 as the argument)
+//      and *dividing by N*. DO NOT FORGET THIS SCALING FACTOR.
+// To compute an *acyclic* convolution, pad f and g to the right with zeroes.
+
 typedef std::complex<double> cpx;
 
 std::unordered_map<double, cpx> EXP_;
@@ -42,18 +56,3 @@ inline void FFT(cpx *in, cpx *out, int step, int size, int dir)
     out[i + size_2] = even - e * odd;
   }
 }
-
-
-// Usage:
-// f[0...N-1] and g[0..N-1] are numbers
-// Want to compute the convolution h, defined by
-// h[n] = sum of f[k]g[n-k] (k = 0, ..., N-1).
-// Here, the index is cyclic; f[-1] = f[N-1], f[-2] = f[N-2], etc.
-// Let F[0...N-1] be FFT(f), and similarly, define G and H.
-// The convolution theorem says H[n] = F[n]G[n] (element-wise product).
-// To compute h[] in O(N log N) time, do the following:
-//   1. Compute F and G (pass dir = 1 as the argument).
-//   2. Get H by element-wise multiplying F and G.
-//   3. Get h by taking the inverse FFT (use dir = -1 as the argument)
-//      and *dividing by N*. DO NOT FORGET THIS SCALING FACTOR.
-// To compute an *acyclic* convolution, pad f and g to the right with zeroes.
