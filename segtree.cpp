@@ -20,6 +20,8 @@ struct Segtree {
 #define NOLAZY 2e9
 #define GET(node) (lazy[node] == NOLAZY) ? data[node] : lazy[node]
     std::vector<dt> lazy;
+#else
+#define GET(node) data[node]
 #endif
     
     void build_rec (int node, dt* begin, dt* end)
@@ -80,7 +82,7 @@ struct Segtree {
     {
     
         if (begin >= rbegin && end <= rend)
-            return data[node];
+            return GET (node);
         else {
             
             BASIC

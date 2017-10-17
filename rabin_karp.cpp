@@ -26,7 +26,7 @@ int mod_exp (int x, int y, int MOD)
  * Checking for matches using double hashing
  */
 
-int rabin_karp (std::string& text, std::string& search)
+int rabin_karp (std::string& text, const std::string& search)
 {
     constexpr int B = 2; // size of alphabet ??
     
