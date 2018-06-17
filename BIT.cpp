@@ -8,6 +8,7 @@ struct BIT
     std::vector<dt> bit;
     BIT (int n) : n (n), bit (n + 1) {}
     
+    // returns sum till idx
     dt read (int idx) {
     
         dt res = 0;
@@ -20,7 +21,7 @@ struct BIT
         return res;
     }
     
-    void update (int idx, int val)
+    void update (int idx, dt val)
     {
         while (idx <= n) {
         
@@ -33,34 +34,36 @@ struct BIT
      * Below code may not be required for most tasks.
      */
     
-    // Similar to STL's lower bound function
+    // Similar to STL's lower bound function.
+    // Returns smallest positive idx such that read(idx) > target.
     int lower_bound (dt target)
     {
-        if (target <= 0) return 0;
+        if (target <= 0) return 1;
         dt pwr = 1;
         while (pwr * 2 <= n) pwr *= 2;
-        int idx = 0;
-        dt tot = 0;
+        int idx = 0; dt tot = 0;
         while (pwr) {
-            if (idx + pwr <=  n && tot + bit[idx + pwr] < target)
+            if (idx + pwr <= n && tot + bit[idx + pwr] < target)
                 tot += bit[idx += pwr];
             pwr >>= 1;
         }
         return idx + 1;
     }
     
-    // Similar to STL's upper bound function
+    // Similar to STL's upper bound function.
+    // Returns smallest positive idx such that read(idx) >= target
     int upper_bound (dt target)
     {
-        if (target <= 0) return 0;
+        if (target < 0) return 1;
         dt pwr = 1;
         while (pwr * 2 <= n) pwr *= 2;
-        int idx = 0;
-        dt tot = 0;
+        int idx = 0; dt tot = 0;
         while (pwr) {
-            if (idx + pwr <= n && tot + bit[idx + pwr] <= target) // <= instead of <
+            if (idx + pwr <= n && tot + bit[idx + pwr] <= target)
                 tot += bit[idx += pwr];
             pwr >>= 1;
         }
+        
+        return idx + 1;
     }
 };
